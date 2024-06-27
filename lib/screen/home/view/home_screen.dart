@@ -19,14 +19,21 @@ class _HomeScreenState extends State<HomeScreen> {
   InAppWebViewController? checkInAppWebView;
   TextEditingController? txtSearch = TextEditingController();
   String? link2;
+  PullToRefreshController? pullToRefresh;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     context.read<HomeProvider>().getLink1();
-    context.read<HomeProvider>().getLink1().then((value) {
-      link2 = context.read<HomeProvider>().link.toString();
+    context.read<HomeProvider>().getLink1().then(
+      (value) {
+        link2 = context.read<HomeProvider>().link.toString();
+      },
+    );
+    context.read<HomeProvider>().onPogress();
+    pullToRefresh = PullToRefreshController(onRefresh: () {
+      checkInAppWebView!.reload();
     },);
     //print(link2);
     // print(context.read<HomeProvider>().getLink1().then((value) {
@@ -45,16 +52,18 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           PopupMenuButton(
             itemBuilder: (context) {
-            return  [
+              return [
                 PopupMenuItem(
                   onTap: () {
                     showDialogMain();
                   },
                   child: Text("Search Engine"),
                 ),
-              PopupMenuItem(onTap: () {
-                showBookMark();
-              },child: Text("Bookmarks"))
+                PopupMenuItem(
+                    onTap: () {
+                      showBookMark();
+                    },
+                    child: Text("Bookmarks"))
               ];
             },
           )
@@ -79,18 +88,49 @@ class _HomeScreenState extends State<HomeScreen> {
                     onProgressChanged: (controller, progress) {
                       double check = progress / 100;
                       providerR!.check(check);
+                      if(progress == 100)
+                        {
+                          pullToRefresh!.endRefreshing();
+                        }
                     },
+                    pullToRefreshController: PullToRefreshController(
+                      onRefresh: () {
+                      //checkInAppWebView!.reload();
+                      if(providerW!.isCheck== 1)
+                        {
+                          //pullToRefresh!.isRefreshing();
+                           pullToRefresh!.endRefreshing();
+                        }
+                       pullToRefresh!.isRefreshing();
+
+                    },),
                   ),
                 ),
                 SearchBar(
+                  trailing: [
+                    IconButton(
+                        onPressed: () {
+                          checkInAppWebView!
+                              .loadUrl(urlRequest: URLRequest(url: WebUri(
+                                  // "https://www.google.com/search?q=/"
+
+                                  "${providerW!.searchLink}${txtSearch!.text}")));
+                          txtSearch!.clear();
+                        },
+                        icon: Icon(Icons.search)),
+                  ],
                   onTap: () {
-                    checkInAppWebView!.loadUrl(urlRequest: URLRequest(url: WebUri("https://www.google.com/search?q=/${txtSearch!.text}")));
+                    // checkInAppWebView!.loadUrl(urlRequest: URLRequest(url: WebUri(
+                    //     // "https://www.google.com/search?q=/"
+                    //
+                    //         "${providerW!.searchLink}${txtSearch!.text}")));
+                    // txtSearch!.clear();
                   },
                   controller: txtSearch,
                   padding: WidgetStatePropertyAll(
                       EdgeInsets.symmetric(horizontal: 15)),
                   hintText: "Search",
-                  leading: Icon(Icons.search),
+                  // leading: Icon(Icons.search),
                 )
               ],
             )
@@ -111,8 +151,10 @@ class _HomeScreenState extends State<HomeScreen> {
           label: "Bookmark",
           icon: IconButton(
             onPressed: () async {
-              var  link = await checkInAppWebView!.getOriginalUrl();
-               providerR!.setLink1(link.toString());
+              var link = await checkInAppWebView!.getOriginalUrl();
+              providerR!.setLink1(link.toString());
+              // providerR!.addBookmark(link.toString());
+
               print(link!.toString());
             },
             icon: const Icon(
@@ -177,6 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 value: "Google",
                 groupValue: providerW!.isChoice,
                 onChanged: (value) {
+                  providerR!.changeLink("https://www.google.com/search?q=/");
                   providerR!.choice(value);
                   checkInAppWebView!.loadUrl(
                       urlRequest: URLRequest(
@@ -189,6 +232,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 value: "Yahoo",
                 groupValue: providerW!.isChoice,
                 onChanged: (value) {
+                  providerR!.changeLink(
+                      "https://in.search.yahoo.com/search;_ylt=Awr1SdbQnn1mZuoQ_u66HAx.;_ylc=X1MDMjExNDcyMzAwMgRfcgMyBGZyAwRmcjIDcDpzLHY6c2ZwLG06c2ItdG9wBGdwcmlkAwRuX3JzbHQDMARuX3N1Z2cDMARvcmlnaW4DaW4uc2VhcmNoLnlhaG9vLmNvbQRwb3MDMARwcXN0cgMEcHFzdHJsAzAEcXN0cmwDNARxdWVyeQNnYW1lBHRfc3RtcAMxNzE5NTA5MDg5?p=");
                   providerW!.choice(value);
                   checkInAppWebView!.loadUrl(
                       urlRequest: URLRequest(
@@ -201,6 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 value: "DuckDuckGo",
                 groupValue: providerW!.isChoice,
                 onChanged: (value) {
+                  providerR!.changeLink("https://duckduckgo.com/?t=h_&q=");
                   providerR!.choice(value);
                   checkInAppWebView!.loadUrl(
                       urlRequest:
@@ -213,6 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 value: "Bing",
                 groupValue: providerW!.isChoice,
                 onChanged: (value) {
+                  providerR!.changeLink("https://www.bing.com/search?q=");
                   providerR!.choice(value);
                   checkInAppWebView!.loadUrl(
                       urlRequest:
@@ -228,20 +275,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void showBookMark()
-  {
-    showModalBottomSheet(context: context, builder: (context) {
-    return  BottomSheet(onClosing: () {
-
-      }, builder: (context) {
-       return Container(
-         child: Column(
-           children: [
-             Text("${link2.toString()}")
-           ],
-         ),
-       );
-      },);
-    },);
+  void showBookMark() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return BottomSheet(
+          onClosing: () {},
+          builder: (context) {
+            return Container(
+              child: Column(
+                children: [Text("${link2.toString()}")],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }
