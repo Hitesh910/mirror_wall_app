@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
     //InappWebViewController? checkInappWebView;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Mirror Wall"),
+        title: const Text("My Browser"),
         actions: [
           PopupMenuButton(
             itemBuilder: (context) {
