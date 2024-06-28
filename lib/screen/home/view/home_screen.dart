@@ -32,9 +32,11 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
     context.read<HomeProvider>().onPogress();
-    pullToRefresh = PullToRefreshController(onRefresh: () {
-      checkInAppWebView!.reload();
-    },);
+    pullToRefresh = PullToRefreshController(
+      onRefresh: () {
+        checkInAppWebView!.reload();
+      },
+    );
     //print(link2);
     // print(context.read<HomeProvider>().getLink1().then((value) {
     //   link2 = context.read<HomeProvider>().link!;
@@ -81,29 +83,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: InAppWebView(
                     initialUrlRequest:
                         URLRequest(url: WebUri("https://www.google.co.in/")),
-                    onLoadStop: (controller, url) {},
+                    onLoadStop: (controller, url) {
+                      pullToRefresh!.endRefreshing();
+                    },
                     onLoadStart: (controller, url) {
                       checkInAppWebView = controller;
                     },
                     onProgressChanged: (controller, progress) {
                       double check = progress / 100;
                       providerR!.check(check);
-                      if(progress == 100)
-                        {
-                          pullToRefresh!.endRefreshing();
-                        }
+                      if (progress == 100) {
+                        pullToRefresh!.endRefreshing();
+                      }
                     },
-                    pullToRefreshController: PullToRefreshController(
-                      onRefresh: () {
-                      //checkInAppWebView!.reload();
-                      if(providerW!.isCheck== 1)
-                        {
-                          //pullToRefresh!.isRefreshing();
-                           pullToRefresh!.endRefreshing();
-                        }
-                       pullToRefresh!.isRefreshing();
-
-                    },),
+                    pullToRefreshController: pullToRefresh,
+                    // pullToRefreshController: PullToRefreshController(
+                    //   onRefresh: () {
+                    //     //checkInAppWebView!.reload();
+                    //     if (providerW!.isCheck == 1) {
+                    //       //pullToRefresh!.isRefreshing();
+                    //       pullToRefresh!.endRefreshing();
+                    //     }
+                    //     pullToRefresh!.isRefreshing();
+                    //   },
+                    // ),
                   ),
                 ),
                 SearchBar(
@@ -153,6 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () async {
               var link = await checkInAppWebView!.getOriginalUrl();
               providerR!.setLink1(link.toString());
+              providerR!.bookmarkSave.add(link.toString());
               // providerR!.addBookmark(link.toString());
 
               print(link!.toString());
@@ -282,9 +286,21 @@ class _HomeScreenState extends State<HomeScreen> {
         return BottomSheet(
           onClosing: () {},
           builder: (context) {
-            return Container(
-              child: Column(
-                children: [Text("${link2.toString()}")],
+            return Expanded(
+              child: ListView.builder(
+                itemCount: providerW!.bookmarkSave.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    onTap: () {
+                      checkInAppWebView!.
+                      loadUrl(
+                          urlRequest:
+                              URLRequest(url: WebUri("${providerW!.bookmarkSave[index]}")));
+                      Navigator.pop(context);
+                    },
+                    title: Text("${providerW!.bookmarkSave[index]}",style: TextStyle(overflow: TextOverflow.ellipsis),),
+                  );
+                },
               ),
             );
           },
