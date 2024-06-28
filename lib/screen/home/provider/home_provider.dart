@@ -9,9 +9,10 @@ class HomeProvider with ChangeNotifier
   double isCheck = 0;
   SharedHelper share = SharedHelper();
   String? link;
-  String? searchLink;
+  String? searchLink = "https://www.google.com/search?q=/";
   List<String> bookmarkSave = [];
   bool isProgress = true;
+  String? eLink = "https://www.google.com";
     // List<DataModel> dataOption = [
     //   DataModel(image: )
     // ];
@@ -37,7 +38,9 @@ class HomeProvider with ChangeNotifier
 
   void setLink1(String link)
   {
-    share.setLink(link);
+    // getLink1();
+    bookmarkSave.add(link);
+    share.setLink(bookmarkSave);
     getLink1();
     notifyListeners();
     print(link);
@@ -45,13 +48,28 @@ class HomeProvider with ChangeNotifier
 
   Future<void> getLink1()
   async {
-    link = await share.getLink();
+      var link = await share.getLink();
+
+    // if(await share.getLink() == null)
+    //   {
+    //     bookmarkSave = [];
+    //   }
+    // else
+    //   {
+    //     bookmarkSave = (await share.getLink());
+    //   }
+
+    if(link!= null)
+      {
+        bookmarkSave = link;
+      }
     notifyListeners();
     print(link);
   }
 
-  void changeLink(String link)
+  void changeLink(String enLink,String link)
   {
+    eLink = enLink;
     searchLink = link;
     notifyListeners();
   }
@@ -76,5 +94,15 @@ class HomeProvider with ChangeNotifier
 
         notifyListeners();
       },);
+    }
+
+    void deleteLink(int index)
+    {
+      bookmarkSave.removeAt(index);
+      share.setLink(bookmarkSave);
+      // share.getLink();
+
+      // share.getLink();
+      notifyListeners();
     }
 }

@@ -26,11 +26,11 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     context.read<HomeProvider>().getLink1();
-    context.read<HomeProvider>().getLink1().then(
-      (value) {
-        link2 = context.read<HomeProvider>().link.toString();
-      },
-    );
+    // context.read<HomeProvider>().getLink1().then(
+    //   (value) {
+    //     link2 = context.read<HomeProvider>().link.toString();
+    //   },
+    // );
     context.read<HomeProvider>().onPogress();
     pullToRefresh = PullToRefreshController(
       onRefresh: () {
@@ -81,8 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     : Container(),
                 Expanded(
                   child: InAppWebView(
-                    initialUrlRequest:
-                        URLRequest(url: WebUri("https://www.google.co.in/")),
+                    initialUrlRequest: URLRequest(
+                      url: WebUri("https://www.google.co.in/"),
+                    ),
                     onLoadStop: (controller, url) {
                       pullToRefresh!.endRefreshing();
                     },
@@ -131,7 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   controller: txtSearch,
                   padding: WidgetStatePropertyAll(
-                      EdgeInsets.symmetric(horizontal: 15)),
+                    EdgeInsets.symmetric(horizontal: 15),
+                  ),
                   hintText: "Search",
                   // leading: Icon(Icons.search),
                 )
@@ -142,7 +144,9 @@ class _HomeScreenState extends State<HomeScreen> {
         BottomNavigationBarItem(
           label: "Home",
           icon: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              checkInAppWebView!.loadUrl(urlRequest: URLRequest(url: WebUri("${providerW!.eLink}")));
+            },
             icon: const Icon(
               Icons.home,
               color: Colors.black,
@@ -156,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () async {
               var link = await checkInAppWebView!.getOriginalUrl();
               providerR!.setLink1(link.toString());
-              providerR!.bookmarkSave.add(link.toString());
+              // providerR!.bookmarkSave.add(link.toString());
               // providerR!.addBookmark(link.toString());
 
               print(link!.toString());
@@ -223,11 +227,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 value: "Google",
                 groupValue: providerW!.isChoice,
                 onChanged: (value) {
-                  providerR!.changeLink("https://www.google.com/search?q=/");
+                  providerR!.changeLink("https://www.google.com/","https://www.google.com/search?q=/");
                   providerR!.choice(value);
                   checkInAppWebView!.loadUrl(
-                      urlRequest: URLRequest(
-                          url: WebUri("https://www.google.co.in/new")));
+                    urlRequest: URLRequest(
+                      url: WebUri("https://www.google.co.in/new"),
+                    ),
+                  );
                   Navigator.pop(context);
                 },
                 title: const Text("Google"),
@@ -237,11 +243,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 groupValue: providerW!.isChoice,
                 onChanged: (value) {
                   providerR!.changeLink(
-                      "https://in.search.yahoo.com/search;_ylt=Awr1SdbQnn1mZuoQ_u66HAx.;_ylc=X1MDMjExNDcyMzAwMgRfcgMyBGZyAwRmcjIDcDpzLHY6c2ZwLG06c2ItdG9wBGdwcmlkAwRuX3JzbHQDMARuX3N1Z2cDMARvcmlnaW4DaW4uc2VhcmNoLnlhaG9vLmNvbQRwb3MDMARwcXN0cgMEcHFzdHJsAzAEcXN0cmwDNARxdWVyeQNnYW1lBHRfc3RtcAMxNzE5NTA5MDg5?p=");
+                      "https://in.search.yahoo.com/","https://in.search.yahoo.com/search;_ylt=Awr1SdbQnn1mZuoQ_u66HAx.;_ylc=X1MDMjExNDcyMzAwMgRfcgMyBGZyAwRmcjIDcDpzLHY6c2ZwLG06c2ItdG9wBGdwcmlkAwRuX3JzbHQDMARuX3N1Z2cDMARvcmlnaW4DaW4uc2VhcmNoLnlhaG9vLmNvbQRwb3MDMARwcXN0cgMEcHFzdHJsAzAEcXN0cmwDNARxdWVyeQNnYW1lBHRfc3RtcAMxNzE5NTA5MDg5?p=");
                   providerW!.choice(value);
                   checkInAppWebView!.loadUrl(
-                      urlRequest: URLRequest(
-                          url: WebUri("https://in.search.yahoo.com/")));
+                    urlRequest: URLRequest(
+                      url: WebUri("https://in.search.yahoo.com/"),
+                    ),
+                  );
                   Navigator.pop(context);
                 },
                 title: const Text("Yahoo"),
@@ -250,11 +258,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 value: "DuckDuckGo",
                 groupValue: providerW!.isChoice,
                 onChanged: (value) {
-                  providerR!.changeLink("https://duckduckgo.com/?t=h_&q=");
+                  providerR!.changeLink("https://duckduckgo.com/","https://duckduckgo.com/?t=h_&q=");
                   providerR!.choice(value);
                   checkInAppWebView!.loadUrl(
-                      urlRequest:
-                          URLRequest(url: WebUri("https://duckduckgo.com/")));
+                    urlRequest: URLRequest(
+                      url: WebUri("https://duckduckgo.com/"),
+                    ),
+                  );
                   Navigator.pop(context);
                 },
                 title: const Text("DuckDuckGo"),
@@ -263,11 +273,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 value: "Bing",
                 groupValue: providerW!.isChoice,
                 onChanged: (value) {
-                  providerR!.changeLink("https://www.bing.com/search?q=");
+                  providerR!.changeLink("https://www.bing.com/","https://www.bing.com/search?q=");
                   providerR!.choice(value);
                   checkInAppWebView!.loadUrl(
-                      urlRequest:
-                          URLRequest(url: WebUri("https://www.bing.com/")));
+                    urlRequest: URLRequest(
+                      url: WebUri("https://www.bing.com/"),
+                    ),
+                  );
                   Navigator.pop(context);
                 },
                 title: const Text("Bing"),
@@ -291,14 +303,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: providerW!.bookmarkSave.length,
                 itemBuilder: (context, index) {
                   return ListTile(
+                    trailing: IconButton(onPressed: () {
+                      providerW!.deleteLink(index);
+                      // Navigator.pop(context);
+                    }, icon: Icon(Icons.delete)),
                     onTap: () {
-                      checkInAppWebView!.
-                      loadUrl(
-                          urlRequest:
-                              URLRequest(url: WebUri("${providerW!.bookmarkSave[index]}")));
+                      checkInAppWebView!.loadUrl(
+                        urlRequest: URLRequest(
+                          url: WebUri("${providerW!.bookmarkSave[index]}"),
+                        ),
+                      );
                       Navigator.pop(context);
                     },
-                    title: Text("${providerW!.bookmarkSave[index]}",style: TextStyle(overflow: TextOverflow.ellipsis),),
+                    title: Text(
+                      "${providerW!.bookmarkSave[index]}",
+                      style: TextStyle(overflow: TextOverflow.ellipsis),
+                    ),
                   );
                 },
               ),

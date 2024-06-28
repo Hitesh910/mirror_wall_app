@@ -2,17 +2,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedHelper
 {
-  Future<void> setLink(String link)
+  Future<void> setLink(List<String> link)
   async {
     SharedPreferences sha = await  SharedPreferences.getInstance();
-    sha.setString('link', link);
+    sha.setStringList('link', link);
     print(link);
   }
 
   getLink()
   async {
     SharedPreferences sha = await SharedPreferences.getInstance();
-    String? link = sha.getString('link');
+    List<String>? link = sha.getStringList('link');
     print(link);
     return link;
   }
